@@ -1,9 +1,6 @@
-import { useState } from "react";
-import Dashboard from "./components/Dashboard";
+import { Dashboard } from "./feature/dashboard";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return <Dashboard />;
 }
 
