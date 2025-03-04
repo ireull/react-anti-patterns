@@ -1,54 +1,60 @@
-# React + TypeScript + Vite
+### Ключевые характеристики антипаттерна "God Component":
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+1. **Слишком много состояний в одном компоненте**:
 
-Currently, two official plugins are available:
+   ```jsx
+   const [users, setUsers] = useState(MOCK_USERS);
+   const [tasks, setTasks] = useState(MOCK_TASKS);
+   const [projects, setProjects] = useState(MOCK_PROJECTS);
+   const [selectedUser, setSelectedUser] = useState(null);
+   // ... и еще ~10 состояний
+   ```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+2. **Избыточная логика в одном месте**:
 
-## Expanding the ESLint configuration
+   - Управление пользователями, задачами и проектами
+   - Фильтрация и сортировка данных
+   - Обработка форм и модальных окон
+   - Сложная условная отрисовка
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+3. **Много обработчиков событий**:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+   ```jsx
+   const handleSearchChange = (e) => { ... }
+   const handleFilterChange = (e) => { ... }
+   const handleSortChange = (e) => { ... }
+   const handleTaskSelect = (task) => { ... }
+   // ... и много других обработчиков
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+4. **Смешение ответственностей**:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+   - Управление данными и бизнес-логика
+   - Управление UI и его состоянием
+   - Рендеринг разных типов данных
+   - Работа с формами и валидация
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+5. **Огромный JSX для рендеринга**:
+   - Функции для рендеринга разных вкладок: `renderTasksTab()`, `renderUsersTab()`, `renderProjectsTab()`
+   - Сложная структура компонента с множеством условных блоков
+
+### Проблемы этого подхода:
+
+1. **Сложность поддержки** - при росте функционала компонент становится еще сложнее
+2. **Трудности тестирования** - много связанной логики делает тестирование затруднительным
+3. **Низкая переиспользуемость** - компонент нельзя использовать частично или в других местах
+4. **Проблемы производительности** - изменение любого состояния вызывает повторный рендеринг всего компонента
+
+### Проблемы, усугубляемые TypeScript:
+
+1. **Увеличение когнитивной нагрузки** - разработчику нужно удерживать в голове намного больше информации
+2. **Затруднённый рефакторинг** - изменение структуры данных затрагивает много мест в коде
+3. **Сложная поддержка** - внесение изменений требует обновления многих типов и интерфейсов
+4. **Перегруженность файла** - TypeScript добавляет объемный код определения типов
+
+### Как это можно улучшить:
+
+1. **Разделение на модули** - вынести интерфейсы и типы в отдельные файлы
+2. **Композиция компонентов** - разбить на меньшие, специализированные компоненты
+3. **Выделение логики** - использовать кастомные хуки для логики управления данными
+4. **Разделение ответственности** - создать отдельные компоненты для UI и компоненты-контейнеры для логики
