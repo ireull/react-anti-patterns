@@ -1,0 +1,47 @@
+flowchart TD
+    subgraph "Original Data Flow"
+        %% User actions
+        O_UserAction["User Action\n(click, input, etc)"]
+        O_EventHandler["Event Handler\n(14+ handlers in one component)"]
+        O_StateUpdate["State Update\n(14 state variables)"]
+        O_DataProcessing["Data Processing\n(filtering, sorting)"]
+        O_ReRender["Component Re-render"]
+        
+        %% Flow
+        O_UserAction --> O_EventHandler
+        O_EventHandler --> O_StateUpdate
+        O_StateUpdate --> O_DataProcessing
+        O_DataProcessing --> O_ReRender
+        O_ReRender --> O_UserAction
+        
+        %% Cross dependencies
+        O_EventHandler --> |"often updates\nmultiple states"| O_StateUpdate
+        O_StateUpdate --> |"sometimes triggers\nanother handler"| O_EventHandler
+    end
+    
+    subgraph "Refactored Data Flow"
+        %% Context and Components
+        R_UserAction["User Action\n(click, input, etc)"]
+        R_ComponentHandler["Component Handler\n(calls context action)"]
+        R_ContextAction["Context Action\n(centralized business logic)"]
+        R_ContextState["Context State\n(centralized state)"]
+        R_CustomHook["Custom Hook\n(data processing)"]
+        R_UIComponent["UI Component\n(presentation logic)"]
+        
+        %% Main flow
+        R_UserAction --> R_ComponentHandler
+        R_ComponentHandler --> R_ContextAction
+        R_ContextAction --> R_ContextState
+        R_ContextState --> R_CustomHook
+        R_CustomHook --> R_UIComponent
+        R_UIComponent --> R_UserAction
+        
+        %% Component specifics
+        R_Component1["TaskList Component\n(only task list concerns)"]
+        R_Component2["UserDetails Component\n(only user details concerns)"]
+        R_Component3["CreateItemModal Component\n(only form concerns)"]
+        
+        R_UIComponent --- R_Component1
+        R_UIComponent --- R_Component2
+        R_UIComponent --- R_Component3
+    end

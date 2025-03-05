@@ -1,0 +1,75 @@
+flowchart TD
+    subgraph "Original Architecture"
+        MonoDashboard["Dashboard Component (God Component)"]
+        
+        %% Main component state
+        MonoDashboard --> OrigState["All State\n- users/tasks/projects data\n- UI state\n- form state\n- selection state\n- etc."]
+        
+        %% Data processing
+        MonoDashboard --> OrigDataProc["Data Processing\n- filtering logic\n- sorting logic"]
+        
+        %% Event handlers
+        MonoDashboard --> OrigHandlers["All Event Handlers\n- UI actions\n- data mutations\n- selection changes"]
+        
+        %% UI Rendering
+        MonoDashboard --> OrigRender["UI Rendering\n- renderTasksTab()\n- renderUsersTab()\n- renderProjectsTab()\n- renderModal()"]
+        
+        %% Interdependent components
+        OrigState <--> OrigHandlers
+        OrigState --> OrigDataProc
+        OrigDataProc --> OrigRender
+        OrigHandlers --> OrigRender
+        OrigHandlers --> OrigDataProc
+    end
+    
+    subgraph "Refactored Architecture"
+        %% Main component and context
+        RefDashboard["Dashboard Component"]
+        DashboardContext["DashboardContext"]
+        RefDashboard --> DashboardContext
+        
+        %% Component structure
+        RefDashboard --> |"contains"| UIComponents
+        
+        %% Shared components
+        UIComponents["UI Components"] 
+        UIComponents --> TaskList["TaskList"]
+        UIComponents --> TaskDetails["TaskDetails"]
+        UIComponents --> UserList["UserList"]
+        UIComponents --> UserDetails["UserDetails"]
+        UIComponents --> ProjectList["ProjectList"]
+        UIComponents --> ProjectDetails["ProjectDetails"]
+        UIComponents --> CreateItemModal["CreateItemModal"]
+        UIComponents --> DashboardHeader["DashboardHeader"]
+        
+        %% Custom hooks
+        CustomHooks["Custom Hooks"]
+        CustomHooks --> useTasks["useTasks\n- filtering & sorting"]
+        CustomHooks --> useUsers["useUsers\n- filtering"]
+        CustomHooks --> useProjects["useProjects\n- filtering"]
+        CustomHooks --> useModal["useModal"]
+        
+        %% Shared code
+        SharedUtils["Shared Utils"]
+        SharedUtils --> Constants["Constants\n- Mock data\n- Helper functions"]
+        SharedUtils --> Types["Types\n- Interfaces\n- Type definitions"]
+        
+        %% Shared components
+        SharedComponents["Shared UI Components"]
+        SharedComponents --> Badge["Badge"]
+        SharedComponents --> Button["Button"]
+        SharedComponents --> Card["Card"]
+        SharedComponents --> Modal["Modal"]
+        SharedComponents --> SearchInput["SearchInput"]
+        SharedComponents --> Tabs["Tabs"]
+        
+        %% Context dependencies
+        DashboardContext --> |"provides"| ContextState["State\n- Core data\n- UI state\n- Selection state"]
+        DashboardContext --> |"provides"| ContextActions["Actions\n- Create/delete\n- Update status\n- Set selections"]
+        
+        %% Hook usage
+        UIComponents --> |"use"| CustomHooks
+        UIComponents --> |"use"| DashboardContext
+        UIComponents --> |"use"| SharedComponents
+        UIComponents --> |"use"| SharedUtils
+    end

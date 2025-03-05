@@ -1,0 +1,54 @@
+flowchart TD
+    subgraph "Original Component Hierarchy"
+        O_Dashboard["Dashboard Component"]
+        
+        O_Dashboard --> O_Tasks["renderTasksTab()"]
+        O_Dashboard --> O_Users["renderUsersTab()"]
+        O_Dashboard --> O_Projects["renderProjectsTab()"]
+        O_Dashboard --> O_Modal["renderModal()"]
+        
+        %% All logic and state contained in the component
+        O_Dashboard --- O_State["14 useState hooks\nAll state managed here"]
+        O_Dashboard --- O_Handlers["14+ event handlers\nAll logic here"]
+        O_Dashboard --- O_Helpers["Helper functions\ngetStatusColor\ngetPriorityColor"]
+    end
+    
+    subgraph "Refactored Component Hierarchy"
+        R_App["App"]
+        R_App --> R_Dashboard["Dashboard"]
+        
+        R_Dashboard --> R_DashboardProvider["DashboardProvider (Context)"]
+        R_DashboardProvider --> R_DashboardContent["DashboardContent"]
+        
+        R_DashboardContent --> R_DashboardHeader["DashboardHeader"]
+        R_DashboardContent --> R_TabNav["Tabs"]
+        R_DashboardContent --> R_TabContent["Tab Content"]
+        R_DashboardContent --> R_CreateModal["CreateItemModal"]
+        
+        R_TabContent --> R_TaskView["Task View"]
+        R_TabContent --> R_UserView["User View"]
+        R_TabContent --> R_ProjectView["Project View"]
+        
+        R_TaskView --> R_TaskList["TaskList"]
+        R_TaskView --> R_TaskDetails["TaskDetails"]
+        
+        R_UserView --> R_UserList["UserList"]
+        R_UserView --> R_UserDetails["UserDetails"]
+        
+        R_ProjectView --> R_ProjectList["ProjectList"]
+        R_ProjectView --> R_ProjectDetails["ProjectDetails"]
+        
+        %% Shared components
+        R_Shared["Shared UI Components"]
+        R_Shared --> R_Card["Card"]
+        R_Shared --> R_Badge["Badge"]
+        R_Shared --> R_Button["Button"]
+        R_Shared --> R_Modal["Modal"]
+        R_Shared --> R_SearchInput["SearchInput"]
+        
+        %% State and behavior are distributed
+        R_DashboardProvider --- R_ContextState["Centralized State\nManaged in context"]
+        R_TaskList -.- R_TaskHooks["useTasks hook\nFor filtering/sorting"]
+        R_UserList -.- R_UserHooks["useUsers hook\nFor filtering"]
+        R_ProjectList -.- R_ProjectHooks["useProjects hook\nFor filtering"]
+    end
